@@ -1,4 +1,4 @@
-import 'leaflet/dist/leaflet.css';
+import '~/leaflet.css';
 import { useRef } from 'react';
 import { CircleMarker, MapContainer, TileLayer, Tooltip } from 'react-leaflet';
 import type { Earthquake } from '~/types/earthquake';
