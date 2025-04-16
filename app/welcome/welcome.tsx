@@ -21,7 +21,7 @@ export default function Welcome() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:3006');
+      const response = await axios.get('https://api.nazca.gaulatti.com');
       setEarthquakeData(response.data);
       setLoading(false);
     } catch (err) {
