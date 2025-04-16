@@ -10,7 +10,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ earthquakeData }: DashboardProps) {
-  const [currentView, setCurrentView] = useState<'world' | 'detail'>('world');
+  const [currentView, setCurrentView] = useState<'world' | 'regional' | 'detail'>('world');
   const [currentDetailIndex, setCurrentDetailIndex] = useState(0);
   const [currentGroup, setCurrentGroup] = useState(0);
 
@@ -29,31 +29,34 @@ export default function Dashboard({ earthquakeData }: DashboardProps) {
   const currentGroupEarthquakes = groupedSignificantEarthquakes[currentGroup] || [];
   const currentEarthquake = currentGroupEarthquakes[currentDetailIndex];
 
+  // South America bounds
+  const REGIONAL_BOUNDS = [[-12.930675, -111.720448], [-56.557609, -63.674670]] as [[number, number], [number, number]];
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
     if (currentView === 'world') {
-      // Show world view for 15 seconds
+      timer = setTimeout(() => {
+        setCurrentView('regional');
+      }, 15000);
+    } else if (currentView === 'regional') {
       timer = setTimeout(() => {
         if (significantEarthquakes.length > 0) {
           setCurrentView('detail');
           setCurrentDetailIndex(0);
+        } else {
+          setCurrentView('world');
         }
       }, 15000);
     } else if (currentView === 'detail') {
-      // Show each detail view for 15 seconds
       timer = setTimeout(() => {
         if (currentDetailIndex < currentGroupEarthquakes.length - 1) {
-          // Move to next earthquake in current group
           setCurrentDetailIndex(currentDetailIndex + 1);
         } else {
-          // End of current group
           if (currentGroup < groupedSignificantEarthquakes.length - 1) {
-            // More groups exist, go back to world view
             setCurrentView('world');
             setCurrentGroup(currentGroup + 1);
           } else {
-            // No more groups, restart from beginning
             setCurrentView('world');
             setCurrentGroup(0);
           }
@@ -67,7 +70,7 @@ export default function Dashboard({ earthquakeData }: DashboardProps) {
   return (
     <div className='relative w-full h-full bg-gray-900 text-white'>
       <AnimatePresence mode='wait'>
-        {currentView === 'world' ? (
+        {currentView === 'world' && (
           <motion.div
             key='world-view'
             initial={{ opacity: 0 }}
@@ -78,7 +81,20 @@ export default function Dashboard({ earthquakeData }: DashboardProps) {
           >
             <WorldMapView earthquakes={earthquakeData} />
           </motion.div>
-        ) : (
+        )}
+        {currentView === 'regional' && (
+          <motion.div
+            key='regional-view'
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+            className='w-full h-[calc(100%-50px)]'
+          >
+            <WorldMapView earthquakes={earthquakeData} bounds={REGIONAL_BOUNDS} />
+          </motion.div>
+        )}
+        {currentView === 'detail' && (
           <motion.div
             key={`detail-view-${currentEarthquake?.id}`}
             initial={{ opacity: 0 }}

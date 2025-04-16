@@ -1,6 +1,8 @@
 import { format } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import { useEffect, useRef, useState } from 'react';
 import type { Earthquake } from '~/types/earthquake';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface MarqueeProps {
   earthquakes: Earthquake[];
@@ -8,13 +10,38 @@ interface MarqueeProps {
 
 export default function Marquee({ earthquakes }: MarqueeProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTimezoneIndex, setCurrentTimezoneIndex] = useState(0);
+  const [opacity, setOpacity] = useState(1);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const timezones = [
+    { name: 'Los Angeles', zone: 'America/Los_Angeles' },
+    { name: 'New York', zone: 'America/New_York' },
+    { name: 'Antofagasta', zone: 'America/Santiago' },
+    { name: 'UTC', zone: 'UTC' },
+    { name: 'Berlin', zone: 'Europe/Berlin' },
+    { name: 'Kyiv', zone: 'Europe/Kyiv' },
+    { name: 'Tokyo', zone: 'Asia/Tokyo' },
+  ];
 
   // Update current time every second
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // Modified timezone cycle effect
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setOpacity(0);
+      setTimeout(() => {
+        setCurrentTimezoneIndex((prev) => (prev + 1) % timezones.length);
+        setOpacity(1);
+      }, 150);
+    }, 10000);
 
     return () => clearInterval(timer);
   }, []);
@@ -89,8 +116,29 @@ export default function Marquee({ earthquakes }: MarqueeProps) {
       </div>
 
       {/* UTC time display */}
-      <div className='min-w-[200px] h-full bg-gray-800 flex items-center justify-center border-l border-gray-700'>
-        <div className='text-xl font-mono text-white'>{format(currentTime, 'HH:mm:ss')} UTC</div>
+      <div className='min-w-[400px] h-full bg-gray-800 flex items-center justify-center border-l border-gray-700'>
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={timezones[currentTimezoneIndex].name}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className='text-xl text-white flex-1/2 text-center font-bold'
+          >
+            {timezones[currentTimezoneIndex].name}
+          </motion.div>
+        </AnimatePresence>
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={timezones[currentTimezoneIndex].name}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className='text-xl font-mono text-white flex items-center justify-center flex-1/2'
+          >
+            {format(toZonedTime(currentTime, timezones[currentTimezoneIndex].zone), 'HH:mm:ss')}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

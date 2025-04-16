@@ -9,9 +9,19 @@ export default function Welcome() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  /**
+   * Reload the page every hour.
+   * For raspberry pi, this is to prevent memory leaks.
+   */
+  useEffect(() => {
+    setTimeout(() => {
+      window.location.reload();
+    }, 3600000);
+  }, []);
+
   const fetchData = async () => {
     try {
-      const response = await axios.get('https://api.nazca.gaulatti.com');
+      const response = await axios.get('http://localhost:3006');
       setEarthquakeData(response.data);
       setLoading(false);
     } catch (err) {
