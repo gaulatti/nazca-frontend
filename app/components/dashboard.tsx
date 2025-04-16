@@ -30,7 +30,7 @@ export default function Dashboard({ earthquakeData }: DashboardProps) {
   const currentEarthquake = currentGroupEarthquakes[currentDetailIndex];
 
   // South America bounds
-  const REGIONAL_BOUNDS = [[-12.930675, -111.720448], [-56.557609, -63.674670]] as [[number, number], [number, number]];
+  const REGIONAL_BOUNDS = [[0, -111.720448], [-56.557609, -63.674670]] as [[number, number], [number, number]];
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
