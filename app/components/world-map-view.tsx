@@ -91,7 +91,7 @@ export default function WorldMapView({ earthquakes, bounds }: WorldMapViewProps)
     const hoursDiff = (now - quakeTime) / (1000 * 60 * 60);
 
     // Fade from 1.0 (recent) to 0.6 (older)
-    return Math.max(0.6, 1 - hoursDiff / 24);
+    return Math.max(0.6, 1 - hoursDiff / 12);
   };
 
   // Filter and sort earthquakes
